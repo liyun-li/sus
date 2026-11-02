@@ -229,7 +229,7 @@ export default {
         if (ctx2 && ctx2.sfx) try { ctx2.sfx(ok ? 'right' : 'wrong') } catch (e) { }
         OB.forEach(e => { e.disabled = true; e.classList.toggle('right', e.dataset.b === g); e.classList.toggle('wrong', e.dataset.b === b && !ok) });
         root.classList.add('done'); renderReveal(true);
-        revT = Date.now(); const nx = $('next'); nx.classList.add('arming'); setTimeout(() => nx.classList.remove('arming'), 350);
+        revT = Date.now(); const nx = $('next'), arm = [nx, $('rv')]; arm.forEach(e => e.classList.add('arming')); setTimeout(() => arm.forEach(e => e.classList.remove('arming')), 350);
         if (navigator.vibrate) try { navigator.vibrate(ok ? [15, 30, 15] : [40]) } catch (e) { }
         setTimeout(() => { if (root.isConnected) nx.focus({ preventScroll: true }) }, 60)
       }
@@ -263,7 +263,7 @@ export default {
         h += `<p><a href="https://tips.fbi.gov/" target="_blank" rel="noopener"><b>${esc(T('tip'))}</b></a><br><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(T('fbi'))}</a></p>`;
         $('dlgT').textContent = nameOf(c); $('dlgB').innerHTML = h; $('dlgB').scrollTop = 0; const d = $('dlg'); if (!d.open) d.showModal()
       }
-      $('fullBtn').addEventListener('click', () => { if (done) fullPoster() });
+      $('fullBtn').addEventListener('click', () => { if (done && Date.now() - revT >= 350) fullPoster() });
       $('dlgX').addEventListener('click', () => $('dlg').close());
       $('dlg').addEventListener('click', e => { if (e.target === $('dlg')) $('dlg').close() });
       function userNext() { if (!done || finished || Date.now() - revT < 350) return; finished = true; $('next').disabled = true; cleanup(); resolve(res) }

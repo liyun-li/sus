@@ -3,7 +3,8 @@ const CSS_ID='m-paper-css';
 const MONO='ui-monospace,"SF Mono",Menlo,Consolas,"Courier New","PingFang TC","Noto Sans TC","Noto Sans CJK TC",monospace';
 const CSS=`
 .m-paper{--mp-pap:#ece4cf;--mp-pap2:#f7f2e4;--mp-dk:#1d1a14;--mp-red:#a82a20;--mp-man:#d9b56a;--mp-grn:#1d6b43;--mp-btn:color-mix(in srgb,var(--fg,#f1ece0) 8%,var(--bg,#15130f));--k:1;
- container:mp/size;height:100%;width:100%;min-width:0;min-height:0;display:flex;flex-direction:column;gap:clamp(.3rem,1.4cqh,.55rem);color:var(--fg,#f1ece0);position:relative;overflow:hidden;box-sizing:border-box}
+ container:mp/size;height:100%;width:100%;min-width:0;min-height:0;color:var(--fg,#f1ece0);position:relative;overflow:hidden;box-sizing:border-box}
+.m-paper .mp-in{height:100%;width:100%;min-height:0;min-width:0;display:flex;flex-direction:column;gap:clamp(.3rem,1.4cqh,.55rem);overflow:hidden}
 .m-paper *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 .m-paper button{font:inherit;cursor:pointer;color:inherit;touch-action:manipulation}
 .m-paper :focus-visible{outline:3px solid var(--mp-man);outline-offset:2px}
@@ -51,7 +52,7 @@ const CSS=`
 .m-paper.nodocs .mp-docs{display:none}
 .m-paper .mp-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @container mp (min-aspect-ratio:5/4){
- .m-paper{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:.4rem .8rem}
+ .m-paper .mp-in{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:.4rem .8rem}
  .m-paper .mp-side{justify-content:center}
  .m-paper .mp-opts{grid-template-columns:1fr}
  .m-paper .mp-opts button{min-height:0;flex-direction:row;gap:.5em}
@@ -103,7 +104,7 @@ export default {
   if(!document.getElementById(CSS_ID)){const s=document.createElement('style');s.id=CSS_ID;s.textContent=CSS;document.head.appendChild(s)}
   let L=norm(ctx2.lang);const T=k=>S[L][k],sig=ctx2.signal,c=round.c,co=round.co,SLOTS=Math.max(round.slots||0,c.trail_en.length,c.trail_zh.length);
   const sfx=k=>{try{ctx2.sfx&&ctx2.sfx(k)}catch(e){}};
-  el.innerHTML=`<div class="m-paper s-v">
+  el.innerHTML=`<div class="m-paper s-v"><div class="mp-in">
  <div class="mp-card">
   <div class="mp-head"><span class="mp-title"></span><span class="mp-steps" aria-hidden="true"><i></i><i></i><i></i></span><span class="mp-worth"></span></div>
   <div class="mp-mrow"><p class="mp-meta"></p><span class="mp-stamp" aria-hidden="true"></span></div>
@@ -111,14 +112,14 @@ export default {
   <div class="mp-rv" aria-live="polite"><p class="mp-rline"></p><p class="mp-rcrack"></p><p class="mp-rtext"></p><p class="mp-rsrc"><a href="#" target="_blank" rel="noopener"></a></p></div>
  </div>
  <div class="mp-side"><h2 class="mp-q"></h2><div class="mp-opts" role="group"></div><button type="button" class="mp-next"></button></div>
- <p class="mp-sr" aria-live="polite"></p></div>`;
-  const root=el.firstElementChild,q=s=>root.querySelector(s),docs=q('.mp-docs'),rv=q('.mp-rv'),opts=q('.mp-opts');
+ </div><p class="mp-sr" aria-live="polite"></p></div>`;
+  const root=el.firstElementChild,inner=root.firstElementChild,q=s=>root.querySelector(s),docs=q('.mp-docs'),rv=q('.mp-rv'),opts=q('.mp-opts');
   const qid='mpq'+Math.random().toString(36).slice(2,8);q('.mp-q').id=qid;opts.setAttribute('aria-labelledby',qid);
   const st={s:'v',x:null,hold:0};const held=()=>performance.now()<st.hold;
   const tx=k=>c[k+'_'+L];
   function fit(e){let k=1.3;e.style.setProperty('--k',k);while(e.scrollHeight>e.clientHeight&&k>.4){k-=.05;e.style.setProperty('--k',k.toFixed(2))}return k}
   function fitAll(){if(!root.isConnected)return;root.classList.remove('nodocs');opts.style.removeProperty('--ko');if(st.s==='r'){fit(rv);return}
-   if(st.s==='c'){root.classList.add('nodocs');let ko=1;const over=()=>root.scrollHeight>root.clientHeight+1||[...opts.children].some(b=>b.scrollHeight>b.clientHeight+1);
+   if(st.s==='c'){root.classList.add('nodocs');let ko=1;const over=()=>inner.scrollHeight>inner.clientHeight+1||[...opts.children].some(b=>b.scrollHeight>b.clientHeight+1);
     while(over()&&ko>.6){ko-=.05;opts.style.setProperty('--ko',ko.toFixed(2))}root.classList.remove('nodocs')}
    const k=fit(docs);if(st.s==='c'&&k<.7)root.classList.add('nodocs')}
   const ro=new ResizeObserver(()=>fitAll());ro.observe(root);
