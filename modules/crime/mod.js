@@ -58,7 +58,7 @@ const T={en:{q:'Who got <b>more time</b>?',hint:'Tap the one that got more priso
  step:(i,n)=>`Comparison ${i} of ${n}`,sum:p=>`${p}/3 sentences called`},
 zh:{q:'誰被關<b>比較久</b>？',hint:'點你覺得被關比較久的那一個。',next:'下一題',done:'完成',known:'判刑',
  mo:n=>`${n} 個月`,dy:n=>`${n} 天`,ym:(y,m)=>`${y} 年`+(m?` ${m} 個月`:''),life:'無期徒刑',prob:'緩刑',
- src:'司法部原文 ↗',srcL:'閱讀美國司法部新聞稿原文',ok:['猜中啦','神準','抗議成立','正解'],no:['駁回','異議！','翻車','再審'],
+ src:'司法部原文 ↗',srcL:'閱讀司法部原文（美國司法部新聞稿）',ok:['猜中啦','神準','抗議成立','正解'],no:['駁回','異議！','翻車','再審'],
  quips:{soft:'文書犯罪，刑期一點都不文。',prob:'其中一個直接回家。',life:'無期，就是字面上的無期。',close:'比你想的還接近。',
   huge:r=>`差了 ${r} 倍，司法數學。`,gen:['司法就是這麼玄。','量刑指南說了算。','沒人想到，除了法官。','聯邦量刑：很難說。','這數學，嗯，有點道理。']},
  step:(i,n)=>`第 ${i} / ${n} 題`,sum:p=>`猜中 ${p}/3 個刑期`}};
@@ -122,8 +122,8 @@ export default {
   const stateName=s=>!s?'':L==='en'?s:(ST[s]||s);
   function fmt(c,m){const X=S();if(c.k==='life'&&m===undefined)return X.life;if(c.k==='probation')return X.prob;if(c.dy)return X.dy(m===undefined?c.dy:Math.max(1,Math.round(m/c.m*c.dy)));m=m===undefined?c.m:m;m=Math.round(m);return m<24?X.mo(m):X.ym(Math.floor(m/12),m%12)}
   function card(cel,p,c,known){const x=txt(c),X=S(),meta=[x.s,c.y,stateName(c.st)].filter(Boolean).join(' · ');cel.classList.toggle('known',known);
-   p.innerHTML=`<span class="mc-meta">${esc(meta)}</span><span class="mc-crime">${esc(x.c.charAt(0).toUpperCase()+x.c.slice(1))}</span><span class="mc-time"><span class="mc-lbl">${esc(X.known)}</span><span class="mc-num${known?'':' q2'}">${known?esc(fmt(c)):'?'}</span></span>`;
-   p.setAttribute('aria-label',`${x.c}. ${meta}. ${X.known} ${known?fmt(c):'?'}`)}
+   p.innerHTML=`<span class="mc-meta">${esc(meta)}</span> <span class="mc-crime">${esc(x.c.charAt(0).toUpperCase()+x.c.slice(1))}</span> <span class="mc-time"><span class="mc-lbl">${esc(X.known)}</span> <span class="mc-num${known?'':' q2'}">${known?esc(fmt(c)):'?'}</span></span>`;
+   p.removeAttribute('aria-label')}
   function quip(a,b){const X=S().quips,big=val(a)>=val(b)?a:b,small=big===a?b:a,r=val(big)/val(small);
    if(big.k==='life')return X.life;if(small.k==='probation')return X.prob;if(SOFT.has(big.g)&&HARD.has(small.g))return X.soft;if(r>=5)return X.huge(Math.round(r));if(r<1.5)return X.close;
    const g=X.gen;return g[(a.id.charCodeAt(0)+b.id.charCodeAt(1))%g.length]}
