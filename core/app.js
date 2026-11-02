@@ -1,6 +1,6 @@
 // Sus / 有鬼 — hub app. Modules live in ../modules/<id>/mod.js (see CONTRACT.md).
 import * as E from './engine.js';
-import SHIP from './ship.js?v=2611022341';
+import SHIP from './ship.js?v=2611030014';
 const V=new URL(import.meta.url).searchParams.get('v')||'0';
 const QS=new URLSearchParams(location.search);
 const LOCAL=/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
@@ -147,12 +147,17 @@ async function playLoop(){const tok=++loopTok;let skips=0;
   skips=0;run.res[run.i]=res;run.i++;if(run.mode!=='daily'){run.last=sp.id;if(!res.correct)run.lives--}
   if(run.mode==='daily')E.LS.set('daily',run);bumpStats(res);hud()}
  if(tok===loopTok&&run)endRun()}
+function rkey(x){const v=x&&(x.id??x.key??x.slug??x.name);return String(v!=null&&typeof v!=='object'?v:E.h32(JSON.stringify(x).slice(0,400)))}
 async function playOne(sp,m,tok){
- const {mod,pool}=m,r=E.rng(sp.seed);const round=mod.pick(pool,r,sp.tier);if(round==null)throw new Error('pick returned nothing');
+ const {mod,pool}=m;let r=E.rng(sp.seed);let round=mod.pick(pool,r,sp.tier);
+ if(round!=null){const seen=E.LS.get('seen')||{},arr=seen[sp.id]||[];let k=rkey(round);
+  if(run.mode!=='daily'){for(let a=1;a<12&&arr.includes(k);a++){const r2=E.rng(sp.seed+'|re'+a),x=mod.pick(pool,r2,sp.tier);if(x==null)break;r=r2;round=x;k=rkey(x)}}
+  if(!arr.includes(k))arr.push(k);seen[sp.id]=arr.slice(-400);try{E.LS.set('seen',seen)}catch(e){}}
+if(round==null)throw new Error('pick returned nothing');
  const el=document.createElement('div');el.className='mroot';el.dataset.game=sp.id;el.lang=L==='zh'?'zh-Hant':'en';$('stage').replaceChildren(el);hold(350);
  const ac=new AbortController();const ctx2={lang:L,t:E.mkT(L),signal:ac.signal,sfx:null,tier:sp.tier,rng:r};curR={id:sp.id,mod,ac,ctx2,el};
  const aborted=new Promise(ok=>ac.signal.addEventListener('abort',()=>ok('abort')));
- const t0=performance.now();let res=await Promise.race([Promise.resolve().then(()=>mod.render(round,el,ctx2)),aborted]);
+ const t0=performance.now();let res=await Promise.race([Promise.resolve().then(()=>mod.render(round,el,ctx2)).catch(e=>{if(ac.signal.aborted||(e&&e.name==='AbortError'))return 'abort';throw e}),aborted]);
  if(res==='abort'||tok!==loopTok)return 'abort';
  const ms=Math.round(performance.now()-t0);
  if(!res||typeof res!=='object')throw new Error('render resolved without result');

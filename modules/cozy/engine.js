@@ -53,7 +53,7 @@ const CSS = (p, c) => `
 .${p}.r .vp.zoomed{touch-action:none}
 .${p}.r .vp img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:${c.pos};display:block;transform-origin:0 0;will-change:transform;-webkit-user-drag:none;cursor:zoom-in}
 .${p}.r .hint{position:absolute;bottom:.4rem;right:.4rem;background:#000a;color:#fff;font:700 .7rem system-ui;padding:.2rem .5rem;border-radius:.6rem;pointer-events:none;transition:opacity .2s}
-.${p}.r .stamp{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%) rotate(-12deg) scale(3);opacity:0;border:.3rem solid currentColor;padding:.1em .45em;font:900 clamp(1rem,11cqmin,3.6rem) Impact,"Anton","Arial Black",system-ui,sans-serif;letter-spacing:.04em;border-radius:.4rem;background:#000b;text-shadow:0 2px 0 #000;white-space:nowrap;pointer-events:none;max-width:96%;overflow:hidden;text-overflow:ellipsis}
+.${p}.r .stamp{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%) rotate(-12deg) scale(3);opacity:0;border:.3rem solid currentColor;padding:.1em .45em;font:900 min(clamp(1rem,11cqmin,3.6rem),calc(min(100cqw,100cqh*${c.maxAR})*.86/(var(--n,8)*.6 + 1.4))) Impact,"Anton","Arial Black",system-ui,sans-serif;letter-spacing:.04em;border-radius:.4rem;background:#000b;text-shadow:0 2px 0 #000;white-space:nowrap;pointer-events:none;max-width:96%;overflow:hidden;text-overflow:ellipsis}
 .${p}.r .stamp.on{animation:${p}-slam .35s cubic-bezier(.2,1.6,.4,1) forwards}
 @keyframes ${p}-slam{to{transform:translate(-50%,-50%) rotate(-12deg) scale(1);opacity:1}}
 .${p}.r .shake{animation:${p}-sh .35s}@keyframes ${p}-sh{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
@@ -76,10 +76,14 @@ const CSS = (p, c) => `
 @container (min-aspect-ratio: 6/5){
  .${p}.r .in{flex-direction:row;align-items:stretch}
  .${p}.r .side{flex:0 0 min(46%,24rem);justify-content:center}
+ .${p}.r.done .side{flex-basis:min(58%,30rem)}
  .${p}.r .btns{grid-template-columns:1fr}
- .${p}.r .g{min-height:clamp(2.6rem,22cqh,6rem);font-size:clamp(1rem,4cqw,2rem)}
- .${p}.r .verdict{font-size:clamp(1.1rem,4.5cqw,2.6rem)}.${p}.r .ans{font-size:clamp(.85rem,2.6cqw,1.3rem)}
- .${p}.r .fact{font-size:clamp(.7rem,2.4cqw,1rem)}.${p}.r .next{font-size:clamp(1rem,3.4cqw,1.6rem);padding:.4rem}
+ .${p}.r .g{min-height:clamp(2.6rem,22cqh,6rem);font-size:clamp(1rem,min(4cqw,8cqh),2rem)}
+ .${p}.r .rev{gap:.15rem}
+ .${p}.r .verdict{font-size:clamp(.95rem,min(4.5cqw,9cqh),2.6rem)}.${p}.r .ans{font-size:clamp(.8rem,min(2.6cqw,5.5cqh),1.3rem)}
+ .${p}.r .fact{font-size:clamp(.62rem,min(2.4cqw,4.6cqh),1rem);line-height:1.22}
+ .${p}.r .src{font-size:clamp(.55rem,3.4cqh,.68rem);line-height:1.2}
+ .${p}.r .next{font-size:clamp(.9rem,min(3.4cqw,7cqh),1.6rem);padding:.25rem;margin-top:.1rem}
 }
 .${p}.r .zoom{position:fixed;inset:0;background:#000f;z-index:9999;display:none;overscroll-behavior:contain}
 .${p}.r .zoom.on{display:block}
@@ -140,6 +144,7 @@ export function makeGame(cfg) {
           if (state === "rev") {
             const zr = lang === "zh" && round.zh;
             stamp.textContent = zr ? round.zh.stamp : round.stamp;
+            stamp.style.setProperty("--n", [...stamp.textContent].reduce((n, ch) => n + (/[\u2E80-\uFFEF]/.test(ch) ? 1.65 : 1), 0).toFixed(2));
             if (!vtext) vtext = { en: rnd(ok ? L10N.en.right : L10N.en.wrong), zh: rnd(ok ? L10N.zh.right : L10N.zh.wrong) };
             const v = q(".verdict"); v.className = "verdict " + (ok ? "ok" : "no");
             v.textContent = cfg.special && round.answer === cfg.special ? T("specialV") : vtext[lang];

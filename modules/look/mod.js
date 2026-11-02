@@ -72,16 +72,16 @@ const CSS = `
 .m-look .rv{display:none;flex:1 1 0;min-height:0;gap:clamp(.2rem,1cqh,.45rem);flex-direction:column}
 .m-look .ask{display:contents}.m-look.done .rv{display:flex}.m-look.done .ask{display:none}
 .m-look .rtop{display:flex;gap:clamp(.45rem,2.6cqw,.8rem);min-height:0;flex:0 1 auto;height:clamp(6rem,34cqh,15rem)}
-.m-look .pic{flex:none;height:100%;max-height:clamp(5rem,40cqh,16rem);aspect-ratio:4/5;background:#d9d1bd;border-radius:.35rem;overflow:hidden;display:flex;align-items:center;justify-content:center;font:700 .7rem var(--sans,sans-serif);color:var(--mut2);text-align:center;position:relative}
+.m-look .pic{flex:none;height:100%;max-height:clamp(5rem,40cqh,16rem);aspect-ratio:4/5;max-width:42%;background:#d9d1bd;border-radius:.35rem;overflow:hidden;display:flex;align-items:center;justify-content:center;font:700 .7rem var(--sans,sans-serif);color:var(--mut2);text-align:center;position:relative}
 .m-look.done .pic{animation:mlk-flip .5s cubic-bezier(.2,.9,.3,1.2)}
 .m-look .pic img{object-position:50% 25%;width:100%;height:100%;object-fit:cover;display:block}
 .m-look .stamp{position:absolute;left:50%;bottom:6%;transform:translateX(-50%) rotate(-8deg);font:900 clamp(.8rem,min(5cqw,3.8cqh),1.2rem) var(--mono,monospace);border:3px solid currentColor;border-radius:.3rem;padding:.05em .35em;background:#ece6d6e6;white-space:nowrap}
 .m-look .stamp.ok{color:#17653f}.m-look .stamp.no{color:#a23a31}
 .m-look.done .stamp{animation:mlk-stamp .45s .25s both cubic-bezier(.2,.9,.3,1.4)}
 .m-look .rinfo{min-width:0;flex:1 1 0;display:flex;flex-direction:column;gap:clamp(.08rem,.5cqh,.28rem);overflow:hidden}
-.m-look .verdict{font:900 clamp(.9rem,min(5.2cqw,3.8cqh),1.3rem) var(--sans,sans-serif)}.m-look .verdict.ok{color:#17653f}.m-look .verdict.no{color:#a23a31}
-.m-look .rname{font:900 clamp(.76rem,min(4.2cqw,3.1cqh),1.05rem)/1.15 var(--mono,monospace);overflow-wrap:anywhere}
-.m-look .rcat{font-weight:800;font-size:clamp(.7rem,min(3.8cqw,2.8cqh),.92rem)}
+.m-look .verdict{font:900 calc(var(--rk,1)*clamp(.9rem,min(5.2cqw,3.8cqh),1.3rem)) var(--sans,sans-serif)}.m-look .verdict.ok{color:#17653f}.m-look .verdict.no{color:#a23a31}
+.m-look .rname{font:900 calc(var(--rk,1)*clamp(.76rem,min(4.2cqw,3.1cqh),1.05rem))/1.15 var(--mono,monospace);overflow-wrap:break-word;word-break:normal}
+.m-look .rcat{font-weight:800;font-size:calc(var(--rk,1)*clamp(.7rem,min(3.8cqw,2.8cqh),.92rem))}
 .m-look .badge{display:inline-block;background:var(--ink);color:var(--amb);border-radius:.25rem;font:800 .72em var(--sans,sans-serif);padding:.05em .4em;margin-top:.1em}
 .m-look .rd{font-size:clamp(.64rem,min(3.5cqw,2.6cqh),.85rem);color:#4b453a;line-height:1.35;overflow:hidden;flex:1 1 0;min-height:1.4em;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
 .m-look .legal{font-size:clamp(.56rem,min(3cqw,2.2cqh),.74rem);color:#5e5646;flex:none;line-height:1.25}
@@ -110,7 +110,14 @@ const CSS = `
  .m-look .opts button:last-child:nth-child(odd){grid-column:auto}
  .m-look .clues li{font-size:calc(var(--k)*clamp(.72rem,min(2.6cqw,5cqh),1rem))}.m-look .clues li.new{font-size:calc(var(--k)*clamp(.78rem,min(2.9cqw,5.6cqh),1.1rem))}
  .m-look .meta,.m-look .chead{font-size:clamp(.56rem,3.6cqh,.78rem)}.m-look .clueb{font-size:clamp(.7rem,4.6cqh,.95rem);min-height:0;padding:clamp(.2rem,1.8cqh,.5rem) .6rem}
- .m-look .rtop{height:clamp(4.5rem,46cqh,15rem)}.m-look .verdict{font-size:clamp(.85rem,6cqh,1.3rem)}.m-look .rname{font-size:clamp(.72rem,4.8cqh,1.05rem)}
+ .m-look.done .w{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+ .m-look.done .side{grid-column:1;grid-row:2}
+ .m-look.done .rv{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;gap:clamp(.15rem,1.4cqh,.4rem) clamp(.5rem,2cqw,1rem)}
+ .m-look .rtop{display:contents}
+ .m-look .pic{grid-column:1;grid-row:1/-1;height:100%;max-height:none;width:clamp(4.5rem,22cqw,13rem);aspect-ratio:auto}
+ .m-look .rinfo{grid-column:2;grid-row:1;overflow:visible}.m-look .rd{grid-column:2;grid-row:2}.m-look .legal{grid-column:2;grid-row:3}.m-look .racts{grid-column:2;grid-row:4}
+ .m-look .racts .tip{flex-basis:auto}
+.m-look .verdict{font-size:calc(var(--rk,1)*clamp(.85rem,6cqh,1.3rem))}.m-look .rname{font-size:calc(var(--rk,1)*clamp(.72rem,4.8cqh,1.05rem))}
  .m-look .rcat,.m-look .rd,.m-look .racts a,.m-look .racts button{font-size:clamp(.6rem,3.8cqh,.85rem)}.m-look .legal{font-size:clamp(.52rem,3.2cqh,.74rem)}
  .m-look .racts a,.m-look .racts button{padding:clamp(.2rem,1.5cqh,.5rem) .4rem}
  .m-look .next{font-size:clamp(.9rem,6cqh,1.25rem);padding:clamp(.3rem,2.6cqh,.7rem)}
@@ -197,8 +204,12 @@ export default {
       let n = 1, done = false, finished = false, res = null, revT = 0, pick = null;
       const CL = () => cluesOf(c, L);
 
+      function fitR() {
+        const e = root.querySelector('.rinfo'); let k = 1; root.style.setProperty('--rk', 1);
+        while ((e.scrollHeight > e.clientHeight + 1 || e.scrollWidth > e.clientWidth + 1) && k > .55) { k -= .05; root.style.setProperty('--rk', k.toFixed(2)) }
+      }
       function fit() {
-        if (done) return; const e = $('clues'); let k = 1.45; root.style.setProperty('--k', k);
+        if (done) return fitR(); const e = $('clues'); let k = 1.45; root.style.setProperty('--k', k);
         while (e.scrollHeight > e.clientHeight + 1 && k > .6) { k -= .05; root.style.setProperty('--k', k.toFixed(2)) }
       }
       function renderAsk(fresh) {
@@ -249,7 +260,8 @@ export default {
           const st = document.createElement('span'); st.className = 'stamp ' + (ok ? 'ok' : 'no'); st.setAttribute('aria-hidden', 'true'); st.textContent = ok ? `+${res.points}` : '✗'; pic.appendChild(st)
         }
         $('next').textContent = (ctx2 && typeof ctx2.t === 'function' && ctx2.t('next') !== 'next') ? ctx2.t('next') : T('next');
-        $('dlgX').setAttribute('aria-label', T('close'))
+        $('dlgX').setAttribute('aria-label', T('close'));
+        requestAnimationFrame(fitR)
       }
       function fullPoster() {
         const r = c.r || {}; let h = '';
