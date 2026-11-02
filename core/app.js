@@ -1,0 +1,208 @@
+// Sus / 有鬼 — hub app. Modules live in ../modules/<id>/mod.js (see CONTRACT.md).
+import * as E from './engine.js';
+import SHIP from './ship.js?v=2611022323';
+const V=new URL(import.meta.url).searchParams.get('v')||'0';
+const QS=new URLSearchParams(location.search);
+const LOCAL=/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
+const BASE=(QS.get('base')&&LOCAL)?QS.get('base'):(location.hostname==='liyun-li.github.io'?location.origin:'https://liyun-li.github.io');
+const ALL=SHIP;
+// dev only: ?dev=fake (localhost) swaps in the fake module from /dev; never on production
+const DEV=LOCAL&&QS.get('dev')?QS.get('dev').split(','):[];
+const IDS=(LOCAL&&QS.get('only'))?QS.get('only').split(','):(DEV.length?[...DEV,...ALL]:ALL);
+const META={sos:{icon:'🚩',repo:'scam-or-startup',en:'Scam or Startup?',zh:'詐騙還是新創？'},
+ cozy:{icon:'🔪',repo:'crime-scene-or-cozy-studio',en:'Crime Scene or Cozy Studio?',zh:'命案現場還是溫馨小窩？'},
+ plans:{icon:'📐',repo:'who-lives-like-this',en:'Who Lives Like This?',zh:'誰會住成這樣？'},
+ look:{icon:'🔎',repo:'look-again',en:'Look Again',zh:'再看一眼'},
+ crime:{icon:'⚖️',repo:'do-the-crime',en:'Do The Crime',zh:'關多久？'},
+ paper:{icon:'🧾',repo:'paper-trail',en:'Paper Trail',zh:'保單疑雲'},
+ fake:{icon:'🧪',repo:'',en:'Fake (dev)',zh:'假模組（開發）'}};
+const URL0='https://liyun-li.github.io/sus/';
+const S={en:{
+ tag:"Six sus games, one mix. Spot what's off.",
+ daily:(n,k)=>`👀 DAILY MIX #${n}<small>${k} games · same for everyone</small>`,
+ dailyRes:(n,i,k)=>`👀 RESUME MIX #${n}<small>round ${i+1} of ${k}</small>`,
+ dailyDone:(n,p,m)=>`✓ MIX #${n} · ${p}/${m}<small>See results · new mix at midnight (Taipei)</small>`,
+ shuffle:b=>`🔀 SHUFFLE<small>endless · 3 lives${b?` · best ${b}`:''}</small>`,
+ tilesL:"Play one game",solo:(n,b)=>`${n}${b?` · best ${b}`:''}`,
+ about:"About",foot:"Real cases, public data",
+ round:(i,k)=>`ROUND ${i}/${k}`,roundE:i=>`ROUND ${i}`,
+ tierL:t=>['','Easy','Medium','Hard'][t],
+ loading:"Loading…",skipped:"That game didn't load, skipping it.",noneOk:"Games didn't load. Check your connection and try again.",
+ next:"NEXT →",results:"RESULTS →",
+ pts:"pts",share:"SHARE",again:"PLAY AGAIN",shuffle2:"🔀 SHUFFLE",home:"HOME",copied:"Copied!",
+ rank:["Easy mark","Side-eye","Sus detector","Bloodhound","Nothing gets past you"],
+ streak:n=>`🔥 ${n}-day streak · new mix at midnight (Taipei)`,newBest:"🏆 New best!",
+ st:{correct:(c,n)=>[`🎯`,`${c}/${n} calls right`],fast:(g,s)=>[`⚡`,`Fastest call: ${g}, ${s}s`],slow:(g,s)=>[`🐢`,`Longest stare: ${g}, ${s}s`],
+  best:g=>[`👑`,`Your strongest game: ${g}`],worst:g=>[`👻`,`Your nemesis: ${g}`],rounds:n=>[`🔀`,`${n} rounds survived`],best2:b=>[`🏆`,`Best: ${b}`]},
+ sh:(n,p,m)=>`Sus 有鬼 👀 #${n} · ${p}/${m}`,shE:(p,c)=>`Sus 有鬼 👀 Shuffle · ${p} pts in ${c} rounds`,shS:(g,p,c)=>`Sus 有鬼 👀 ${g} · ${p} pts in ${c} rounds`,shStreak:n=>`🔥 ${n}-day streak`
+},zh:{
+ tag:"六款有鬼小遊戲，一次玩到。看你抓不抓得到哪裡怪。",
+ daily:(n,k)=>`👀 每日綜合 #${n}<small>${k} 款遊戲・大家都一樣</small>`,
+ dailyRes:(n,i,k)=>`👀 繼續 #${n}<small>第 ${i+1} / ${k} 回合</small>`,
+ dailyDone:(n,p,m)=>`✓ 綜合 #${n}・${p}/${m} 分<small>看結果・台灣時間午夜換新</small>`,
+ shuffle:b=>`🔀 隨機模式<small>無盡・三條命${b?`・最佳 ${b} 分`:''}</small>`,
+ tilesL:"單玩一款",solo:(n,b)=>`${n}${b?`・最佳 ${b}`:''}`,
+ about:"關於",foot:"真實案件・公開資料",
+ round:(i,k)=>`第 ${i}/${k} 回合`,roundE:i=>`第 ${i} 回合`,
+ tierL:t=>['','簡單','中等','困難'][t],
+ loading:"載入中…",skipped:"這款沒載入成功，先跳過。",noneOk:"遊戲載入失敗，檢查一下網路再試一次。",
+ next:"下一題 →",results:"看結果 →",
+ pts:"分",share:"分享",again:"再玩一次",shuffle2:"🔀 隨機模式",home:"回首頁",copied:"已複製！",
+ rank:["好騙仔","有點懷疑","雷達開了","獵犬鼻","什麼都瞞不過你"],
+ streak:n=>`🔥 連續 ${n} 天・台灣時間午夜換新`,newBest:"🏆 新紀錄！",
+ st:{correct:(c,n)=>[`🎯`,`答對 ${c}/${n} 題`],fast:(g,s)=>[`⚡`,`最快出手：${g}，${s} 秒`],slow:(g,s)=>[`🐢`,`盯最久：${g}，${s} 秒`],
+  best:g=>[`👑`,`你最強的：${g}`],worst:g=>[`👻`,`你的剋星：${g}`],rounds:n=>[`🔀`,`撐了 ${n} 回合`],best2:b=>[`🏆`,`最佳：${b} 分`]},
+ sh:(n,p,m)=>`Sus 有鬼 👀 #${n}・${p}/${m}`,shE:(p,c)=>`Sus 有鬼 👀 隨機模式・${c} 回合 ${p} 分`,shS:(g,p,c)=>`Sus 有鬼 👀 ${g}・${c} 回合 ${p} 分`,shStreak:n=>`🔥 連續 ${n} 天`
+}};
+const $=id=>document.getElementById(id);
+let L=E.detectLang(QS);const T=k=>S[L][k];
+const LOG=[];function log(...a){LOG.push(a.join(' '));console.warn('[sus]',...a)}
+window.__sus={LOG,get run(){return run},get mods(){return MODS}};
+
+// ---- tap guard: swallow taps for 350 ms after every accepted tap and every new step ----
+let holdUntil=0;const hold=ms=>{holdUntil=Math.max(holdUntil,performance.now()+ms)};
+for(const ev of ['pointerdown','mousedown','touchstart','touchend','click'])document.addEventListener(ev,e=>{
+ if(e.target&&e.target.closest&&e.target.closest('#langBtn'))return;
+ if(performance.now()<holdUntil){e.stopImmediatePropagation();if(e.cancelable)e.preventDefault();return}
+ if(ev==='click')hold(350)},{capture:true,passive:false});
+
+// ---- modules ----
+const MODS={};   // id -> {state:'ok'|'fail', mod, pool, why}
+const LOADP={};
+const timeout=(p,ms,what)=>Promise.race([p,new Promise((_,j)=>setTimeout(()=>j(new Error(what+' timeout')),ms))]);
+const meta=id=>META[id]||{icon:'❓',en:id,zh:id};
+function gname(id,lang=L){const m=MODS[id]&&MODS[id].mod;const n=m&&m.name;return (n&&(n[lang]||n.en))||meta(id)[lang]}
+function gicon(id){const m=MODS[id]&&MODS[id].mod;return (m&&typeof m.icon==='string'&&m.icon)||meta(id).icon}
+function getMod(id){if(LOADP[id])return LOADP[id];
+ const url=id==='fake'?'../dev/fake/mod.js':`../modules/${id}/mod.js?v=${V}`;
+ LOADP[id]=(async()=>{try{const ns=await timeout(import(url),15000,'import');const mod=ns&&ns.default;
+   if(!mod||typeof mod.load!=='function'||typeof mod.pick!=='function'||typeof mod.render!=='function')throw new Error('bad export (need load/pick/render)');
+   MODS[id]={state:'loading',mod};
+   const pool=await timeout(Promise.resolve(mod.load({base:BASE,lang:L})),25000,'load');
+   if(pool==null||(Array.isArray(pool)&&!pool.length))throw new Error('empty pool');
+   MODS[id]={state:'ok',mod,pool};return MODS[id]}
+  catch(e){MODS[id]={state:'fail',why:String(e&&e.message||e),mod:MODS[id]&&MODS[id].mod};log('module',id,'skipped:',MODS[id].why);
+   setTimeout(()=>{delete LOADP[id]},30000);return MODS[id]}})();
+ return LOADP[id]}
+// probe which modules exist (import only, cheap) so home tiles reflect reality
+async function probe(){await Promise.all(IDS.map(id=>getMod(id)));renderHome()}
+
+// ---- state ----
+let run=null,curR=null;
+const tierAt=i=>i<3?1:i<7?2:3;
+const DTIERS=[1,1,2,2,3,3];
+function dailyOrder(day){return E.shuf(IDS.filter(x=>x!=='fake'||DEV.includes('fake')).slice().sort(),E.rng('sus|order|'+day))}
+function freshDaily(day){return {mode:'daily',day,n:E.dayNo(day),order:dailyOrder(day),i:0,res:[]}}
+function getDaily(){const d=E.today();let s=E.LS.get('daily');if(!s||s.day!==d||!Array.isArray(s.order))s=freshDaily(d);return s}
+const total=res=>res.reduce((a,r)=>a+(r&&!r.skip?r.n:0),0);
+const maxOf=res=>res.reduce((a,r)=>a+(r&&!r.skip?3:0),0);
+const lives=n=>'❤️'.repeat(Math.max(0,n))+'🖤'.repeat(Math.max(0,3-n));
+
+// ---- UI ----
+function show(id){for(const s of ['home','play','end'])$(s).classList.toggle('on',s===id);document.body.dataset.scr=id}
+function setLangUI(){document.documentElement.lang=L==='zh'?'zh-Hant':'en';$('lEn').classList.toggle('on',L==='en');$('lZh').classList.toggle('on',L==='zh');
+ $('tag').textContent=T('tag');$('footT').textContent=T('foot');$('aboutL').textContent=T('about');$('tilesL').textContent=T('tilesL');
+ document.title=L==='zh'?'有鬼 Sus 👀':'Sus 有鬼 👀'}
+function renderHome(){const d=getDaily(),k=d.order.length,done=d.i>=k;
+ $('dailyBtn').innerHTML=done?T('dailyDone')(d.n,E.fmt(total(d.res)),maxOf(d.res)):d.i>0?T('dailyRes')(d.n,d.i,k):T('daily')(d.n,k);
+ $('shuffleBtn').innerHTML=T('shuffle')(E.LS.get('best_shuffle')||0);
+ const box=$('tiles');box.replaceChildren(...IDS.filter(x=>x!=='fake'||DEV.includes('fake')).map(id=>{const b=document.createElement('button');b.className='tile';b.type='button';b.dataset.id=id;
+  const st=MODS[id]&&MODS[id].state,best=E.LS.get('best_'+id)||0;if(st==='fail')b.setAttribute('aria-disabled','true');
+  b.innerHTML=`<span class="ic" aria-hidden="true">${gicon(id)}</span><span class="nm">${esc(T('solo')(gname(id),best))}</span>`;
+  b.onclick=()=>{if(MODS[id]&&MODS[id].state==='fail'){note(T('noneOk'));return}startSolo(id)};return b}));
+ const fails=IDS.filter(id=>MODS[id]&&MODS[id].state==='fail');$('note').textContent='';if(fails.length&&fails.length===IDS.length)$('note').textContent=T('noneOk');
+ $('hud').textContent='';$('prog').style.width='0'}
+function note(s){$('note').textContent=s}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function hud(){if(!run){$('hud').textContent='';return}const p=E.fmt(total(run.res));
+ if(run.mode==='daily'){$('hud').textContent=`#${run.n} · ${p} ${T('pts')}`;$('prog').style.width=(100*run.i/run.order.length)+'%'}
+ else{$('hud').textContent=`${lives(run.lives)} · ${p} ${T('pts')}`;$('prog').style.width=(100*Math.min(1,run.i/12))+'%'}}
+function rhead(id,tier){const k=run.mode==='daily'?T('round')(run.i+1,run.order.length):T('roundE')(run.i+1);
+ $('rgame').textContent=`${k} · ${gicon(id)} ${gname(id)}`;$('rtier').textContent='●'.repeat(tier)+'○'.repeat(3-tier);$('rtier').setAttribute('aria-label',T('tierL')(tier));$('rtier').title=T('tierL')(tier)}
+function waitUI(msg){const w=document.createElement('div');w.className='hub-wait';w.innerHTML=`<div class="hub-spin" aria-hidden="true"></div><span>${esc(msg)}</span>`;$('stage').replaceChildren(w)}
+
+// ---- runs ----
+function startDaily(){run=getDaily();E.LS.set('daily',run);if(run.i>=run.order.length)return endRun();show('play');playLoop()}
+function startShuffle(){run={mode:'shuffle',seed:(Math.random()*1e9|0),i:0,res:[],lives:3,last:null};show('play');playLoop()}
+function startSolo(id){run={mode:'solo',gid:id,seed:(Math.random()*1e9|0),i:0,res:[],lives:3};show('play');playLoop()}
+function okIds(){return IDS.filter(id=>(id!=='fake'||DEV.includes('fake'))&&!(MODS[id]&&MODS[id].state==='fail'))}
+function nextSpec(){
+ if(run.mode==='daily'){if(run.i>=run.order.length)return null;const id=run.order[run.i];return {id,tier:DTIERS[Math.min(run.i,5)],seed:`sus|${run.day}|${id}|${run.i}`}}
+ if(run.lives<=0)return null;
+ if(run.mode==='solo')return {id:run.gid,tier:tierAt(run.i),seed:`sus|solo|${run.seed}|${run.i}`};
+ const ok=okIds().filter(x=>x!==run.last);if(!ok.length)return null;const r=E.rng(`sus|sh|${run.seed}|${run.i}|pick`);
+ return {id:ok[r()*ok.length|0],tier:tierAt(run.i),seed:`sus|sh|${run.seed}|${run.i}`}}
+let loopTok=0;
+async function playLoop(){const tok=++loopTok;let skips=0;
+ while(run&&tok===loopTok){const sp=nextSpec();if(!sp)break;hud();rhead(sp.id,sp.tier);$('hnext').hidden=true;
+  waitUI(T('loading'));const m=await getMod(sp.id);if(tok!==loopTok)return;
+  let res=null,ms=0;
+  if(m.state==='ok'){try{res=await playOne(sp,m,tok)}catch(e){log('round',sp.id,'failed:',e&&e.message||e);res=null}}
+  if(tok!==loopTok)return;
+  if(res==='abort')return;
+  if(!res){skips++;$('live').textContent=T('skipped');
+   if(run.mode==='daily'){run.res[run.i]={id:sp.id,skip:true};run.i++;E.LS.set('daily',run);continue}
+   if(run.mode==='solo'||skips>6){run.lives=0;break}
+   run.last=sp.id;continue}
+  skips=0;run.res[run.i]=res;run.i++;if(run.mode!=='daily'){run.last=sp.id;if(!res.correct)run.lives--}
+  if(run.mode==='daily')E.LS.set('daily',run);bumpStats(res);hud()}
+ if(tok===loopTok&&run)endRun()}
+async function playOne(sp,m,tok){
+ const {mod,pool}=m,r=E.rng(sp.seed);const round=mod.pick(pool,r,sp.tier);if(round==null)throw new Error('pick returned nothing');
+ const el=document.createElement('div');el.className='mroot';el.dataset.game=sp.id;el.lang=L==='zh'?'zh-Hant':'en';$('stage').replaceChildren(el);hold(350);
+ const ac=new AbortController();const ctx2={lang:L,t:E.mkT(L),signal:ac.signal,sfx:null,tier:sp.tier,rng:r};curR={id:sp.id,mod,ac,ctx2,el};
+ const aborted=new Promise(ok=>ac.signal.addEventListener('abort',()=>ok('abort')));
+ const t0=performance.now();let res=await Promise.race([Promise.resolve().then(()=>mod.render(round,el,ctx2)),aborted]);
+ if(res==='abort'||tok!==loopTok)return 'abort';
+ const ms=Math.round(performance.now()-t0);
+ if(!res||typeof res!=='object')throw new Error('render resolved without result');
+ const n=E.norm(res);const out={id:sp.id,n,correct:!!res.correct,grid:String(res.grid||''),ms,sum_en:res.summary_en||'',sum_zh:res.summary_zh||'',tier:sp.tier};
+ if(res.useHubNext){const last=run.mode==='daily'?run.i+1>=run.order.length:(run.lives-(out.correct?0:1))<=0;const b=$('hnext');b.dataset.last=last?'1':'';b.textContent=last?T('results'):T('next');b.hidden=false;hold(350);
+  const go=await Promise.race([new Promise(ok=>{b.onclick=()=>ok('go')}),aborted]);b.onclick=null;b.hidden=true;if(go==='abort'||tok!==loopTok)return 'abort'}
+ curR=null;return out}
+function stopRound(){loopTok++;if(curR){try{curR.ac.abort()}catch(e){}curR=null}$('hnext').hidden=true;$('stage').replaceChildren()}
+function bumpStats(r){const g=E.LS.get('gstats')||{};const s=g[r.id]||{n:0,p:0};s.n++;s.p+=r.n;g[r.id]=s;E.LS.set('gstats',g)}
+
+// ---- end ----
+let lastEnd=null;
+function endRun(){const R=run;stopRound();show('end');hold(500);const res=R.res.filter(x=>x&&!x.skip),p=E.fmt(total(R.res)),m=maxOf(R.res);
+ let streakN=0,isBest=false;
+ if(R.mode==='daily'){const ds=E.LS.get('dstats')||{};if(ds.last!==R.day){ds.streak=ds.last===E.prevDay(R.day)?(ds.streak||0)+1:1;ds.last=R.day;ds.played=(ds.played||0)+1;E.LS.set('dstats',ds)}streakN=ds.streak||1}
+ else{const k=R.mode==='solo'?'best_'+R.gid:'best_shuffle';const b=E.LS.get(k)||0;if(total(R.res)>b){E.LS.set(k,Math.round(total(R.res)*10)/10);isBest=total(R.res)>0}}
+ lastEnd={R,p,m,streakN,isBest};run=null;renderEnd();$('prog').style.width='100%'}
+function renderEnd(){if(!lastEnd)return;const {R,p,m,streakN,isBest}=lastEnd;const res=R.res.filter(x=>x&&!x.skip);
+ const pct=m?total(R.res)/m:Math.min(1,total(R.res)/30);const rk=T('rank')[Math.min(4,Math.floor(pct*5))];
+ $('score').innerHTML=R.mode==='daily'?`${p}<small>/${m}</small>`:`${p}<small> ${T('pts')}</small>`;
+ $('rank').textContent=rk;
+ $('grid').textContent=gridText(R);
+ const st=T('st'),L2=[];L2.push(st.correct(res.filter(x=>x.correct).length,res.length));
+ if(res.length){const f=res.filter(x=>x.correct).sort((a,b)=>a.ms-b.ms)[0];if(f)L2.push(st.fast(gname(f.id),(f.ms/1000).toFixed(1)));
+  const s=res.slice().sort((a,b)=>b.ms-a.ms)[0];if(s&&res.length>1&&s!==f)L2.push(st.slow(gname(s.id),Math.round(s.ms/1000)))}
+ if(R.mode!=='daily')L2.push(st.rounds(res.length));
+ const g=E.LS.get('gstats')||{};const ranked=Object.entries(g).filter(([id,s])=>s.n>=2&&IDS.includes(id)).map(([id,s])=>[id,s.p/s.n]).sort((a,b)=>b[1]-a[1]);
+ if(R.mode==='daily'&&ranked.length>=2){L2.push(st.best(gicon(ranked[0][0])+' '+gname(ranked[0][0])));L2.push(st.worst(gicon(ranked.at(-1)[0])+' '+gname(ranked.at(-1)[0])))}
+ if(isBest)L2.push(['🏆',T('newBest')]);
+ $('stats').innerHTML=L2.slice(0,4).map(([a,b])=>`<li><b aria-hidden="true">${a}</b><span>${esc(b)}</span></li>`).join('');
+ $('streak').textContent=R.mode==='daily'?T('streak')(streakN):'';
+ $('shareBtn').textContent=T('share');$('againBtn').textContent=R.mode==='daily'?T('shuffle2'):T('again');$('toast').textContent='';
+ $('hud').textContent=R.mode==='daily'?`#${R.n}`:''}
+function gridText(R){const rs=R.res.filter(Boolean);return rs.map(x=>gicon(x.id)).join('')+'\n'+rs.map(x=>x.skip?'⬜':E.sq(x.n)).join('')}
+async function share(){if(!lastEnd)return;const {R,p,m,streakN}=lastEnd;const res=R.res.filter(x=>x&&!x.skip);
+ const head=R.mode==='daily'?T('sh')(R.n,p,m):R.mode==='solo'?T('shS')(gname(R.gid),p,res.length):T('shE')(p,res.length);
+ const txt=[head,gridText(R),R.mode==='daily'&&streakN>1?T('shStreak')(streakN):'',URL0+(R.mode==='daily'?'?daily':'')].filter(Boolean).join('\n');
+ try{if(navigator.share&&/Mobi|Android/i.test(navigator.userAgent)){await navigator.share({text:txt});return}}catch(e){if(e&&e.name==='AbortError')return}
+ try{await navigator.clipboard.writeText(txt)}catch(e){const t=document.createElement('textarea');t.value=txt;document.body.append(t);t.select();try{document.execCommand('copy')}catch(_){}t.remove()}
+ $('toast').textContent=T('copied')}
+
+// ---- wiring ----
+$('logo').onclick=()=>{stopRound();run=null;show('home');renderHome();if(QS.has('daily')||QS.has('play'))history.replaceState(null,'',location.pathname+(QS.get('lang')?'?lang='+QS.get('lang'):''))};
+$('langBtn').onclick=()=>{L=L==='en'?'zh':'en';E.LS.set('lang',L);setLangUI();
+ if(curR){curR.ctx2.lang=L;curR.ctx2.t=E.mkT(L);curR.el.lang=L==='zh'?'zh-Hant':'en';try{curR.mod.setLang&&curR.mod.setLang(L)}catch(e){log('setLang',curR.id,'failed:',e&&e.message||e)}}
+ if($('play').classList.contains('on')&&run){const sp=run.mode==='daily'?run.order[run.i]:null;const id=curR?curR.id:sp;if(id)rhead(id,curR?curR.ctx2.tier:1);hud();$('hnext').textContent=$('hnext').dataset.last?T('results'):T('next')}
+ if($('home').classList.contains('on'))renderHome();if($('end').classList.contains('on'))renderEnd()};
+$('dailyBtn').onclick=()=>startDaily();$('shuffleBtn').onclick=()=>startShuffle();
+$('shareBtn').onclick=share;
+$('againBtn').onclick=()=>{const R=lastEnd&&lastEnd.R;if(!R||R.mode==='daily')startShuffle();else if(R.mode==='solo')startSolo(R.gid);else startShuffle()};
+window.addEventListener('error',e=>log('error',e.message));window.addEventListener('unhandledrejection',e=>log('rejection',e.reason&&e.reason.message||e.reason));
+setLangUI();renderHome();probe();
+if(QS.has('daily'))startDaily();else if(QS.get('play')&&IDS.includes(QS.get('play')))startSolo(QS.get('play'));
