@@ -73,3 +73,5 @@ a{color:#9fd0ff}
  #home #home .tiles{grid-template-columns:repeat(6,minmax(0,1fr));width:min(100%,34rem)}
  #home #home .modes{flex-direction:row;width:min(100%,34rem)}#home .modes>*{flex:1 1 0;min-width:0}
  #end #end .stats{display:none}}
+/* glue (see NOTES.md): bold the big verdict buttons so their module colours pass WCAG large-text contrast */
+#stage .m-sos .g,#stage .m-cozy .g{font-weight:800}

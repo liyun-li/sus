@@ -162,5 +162,5 @@ export default {
    root.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const n=+e.key;if(n>=1&&n<=4){const b=opts.querySelector(`[data-n="${n-1}"]`);if(b){b.click();e.preventDefault()}}});
    live=l=>{if(!root.isConnected)return;L=l;paint(false)};
    if(sig){const ab=()=>{done();reject(sig.reason||new DOMException('Aborted','AbortError'))};if(sig.aborted){ab();return}sig.addEventListener('abort',ab,{once:true})}
-   paint(true);focus0()})}
+   paint(true)})}
 };

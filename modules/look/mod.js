@@ -71,10 +71,10 @@ const CSS = `
 .m-look .opts button[disabled]{cursor:default}.m-look .opts button[disabled]:not(.right):not(.wrong){opacity:.4}
 .m-look .rv{display:none;flex:1 1 0;min-height:0;gap:clamp(.2rem,1cqh,.45rem);flex-direction:column}
 .m-look .ask{display:contents}.m-look.done .rv{display:flex}.m-look.done .ask{display:none}
-.m-look .rtop{display:flex;gap:clamp(.45rem,2.6cqw,.8rem);min-height:0;flex:1 1 0}
+.m-look .rtop{display:flex;gap:clamp(.45rem,2.6cqw,.8rem);min-height:0;flex:0 1 auto;height:clamp(6rem,34cqh,15rem)}
 .m-look .pic{flex:none;height:100%;max-height:clamp(5rem,40cqh,16rem);aspect-ratio:4/5;background:#d9d1bd;border-radius:.35rem;overflow:hidden;display:flex;align-items:center;justify-content:center;font:700 .7rem var(--sans,sans-serif);color:var(--mut2);text-align:center;position:relative}
 .m-look.done .pic{animation:mlk-flip .5s cubic-bezier(.2,.9,.3,1.2)}
-.m-look .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.m-look .pic img{object-position:50% 25%;width:100%;height:100%;object-fit:cover;display:block}
 .m-look .stamp{position:absolute;left:50%;bottom:6%;transform:translateX(-50%) rotate(-8deg);font:900 clamp(.8rem,min(5cqw,3.8cqh),1.2rem) var(--mono,monospace);border:3px solid currentColor;border-radius:.3rem;padding:.05em .35em;background:#ece6d6e6;white-space:nowrap}
 .m-look .stamp.ok{color:#17653f}.m-look .stamp.no{color:#a23a31}
 .m-look.done .stamp{animation:mlk-stamp .45s .25s both cubic-bezier(.2,.9,.3,1.4)}
@@ -83,7 +83,7 @@ const CSS = `
 .m-look .rname{font:900 clamp(.76rem,min(4.2cqw,3.1cqh),1.05rem)/1.15 var(--mono,monospace);overflow-wrap:anywhere}
 .m-look .rcat{font-weight:800;font-size:clamp(.7rem,min(3.8cqw,2.8cqh),.92rem)}
 .m-look .badge{display:inline-block;background:var(--ink);color:var(--amb);border-radius:.25rem;font:800 .72em var(--sans,sans-serif);padding:.05em .4em;margin-top:.1em}
-.m-look .rd{font-size:clamp(.64rem,min(3.5cqw,2.6cqh),.85rem);color:#4b453a;line-height:1.3;overflow:hidden;flex:1 1 0;min-height:0}
+.m-look .rd{font-size:clamp(.64rem,min(3.5cqw,2.6cqh),.85rem);color:#4b453a;line-height:1.35;overflow:hidden;flex:1 1 0;min-height:1.4em;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
 .m-look .legal{font-size:clamp(.56rem,min(3cqw,2.2cqh),.74rem);color:#5e5646;flex:none;line-height:1.25}
 .m-look .racts{display:flex;flex-wrap:wrap;gap:.3rem;flex:none}
 .m-look .racts a,.m-look .racts button{flex:1 1 auto;text-align:center;text-decoration:none;font-weight:800;font-size:clamp(.64rem,min(3.5cqw,2.6cqh),.84rem);border-radius:.45rem;padding:clamp(.28rem,1.1cqh,.5rem) .45rem;border:1px solid #0004;background:none;color:var(--ink)}
@@ -110,7 +110,7 @@ const CSS = `
  .m-look .opts button:last-child:nth-child(odd){grid-column:auto}
  .m-look .clues li{font-size:calc(var(--k)*clamp(.72rem,min(2.6cqw,5cqh),1rem))}.m-look .clues li.new{font-size:calc(var(--k)*clamp(.78rem,min(2.9cqw,5.6cqh),1.1rem))}
  .m-look .meta,.m-look .chead{font-size:clamp(.56rem,3.6cqh,.78rem)}.m-look .clueb{font-size:clamp(.7rem,4.6cqh,.95rem);min-height:0;padding:clamp(.2rem,1.8cqh,.5rem) .6rem}
- .m-look .pic{max-height:none}.m-look .verdict{font-size:clamp(.85rem,6cqh,1.3rem)}.m-look .rname{font-size:clamp(.72rem,4.8cqh,1.05rem)}
+ .m-look .rtop{height:clamp(4.5rem,46cqh,15rem)}.m-look .verdict{font-size:clamp(.85rem,6cqh,1.3rem)}.m-look .rname{font-size:clamp(.72rem,4.8cqh,1.05rem)}
  .m-look .rcat,.m-look .rd,.m-look .racts a,.m-look .racts button{font-size:clamp(.6rem,3.8cqh,.85rem)}.m-look .legal{font-size:clamp(.52rem,3.2cqh,.74rem)}
  .m-look .racts a,.m-look .racts button{padding:clamp(.2rem,1.5cqh,.5rem) .4rem}
  .m-look .next{font-size:clamp(.9rem,6cqh,1.25rem);padding:clamp(.3rem,2.6cqh,.7rem)}
@@ -186,7 +186,7 @@ export default {
       root.innerHTML = `<div class="cq"><div class="w">
 <div class="card"><div class="chead"><span data-r="lbl">🔎</span><span class="ladder" data-r="ladder" aria-hidden="true"></span><span class="worth" data-r="worth"></span></div>
  <div class="ask"><p class="meta" data-r="meta"></p><ol class="clues" data-r="clues" aria-live="polite"></ol><button class="clueb" data-r="clueBtn" type="button"></button></div>
- <div class="rv" data-r="rv" aria-live="polite"><div class="rtop"><div class="pic" data-r="pic"></div><div class="rinfo"><div class="verdict" data-r="verdict"></div><div class="rname" data-r="rname" lang="en"></div><div class="rcat" data-r="rcat"></div><div class="rd" data-r="rd"></div></div></div>
+ <div class="rv" data-r="rv" aria-live="polite"><div class="rtop"><div class="pic" data-r="pic"></div><div class="rinfo"><div class="verdict" data-r="verdict"></div><div class="rname" data-r="rname" lang="en"></div><div class="rcat" data-r="rcat"></div></div></div><div class="rd" data-r="rd"></div>
   <p class="legal" data-r="legal"></p><div class="racts"><a class="tip" href="https://tips.fbi.gov/" target="_blank" rel="noopener" data-r="tip"></a><button type="button" data-r="fullBtn"></button><a data-r="fbiLink" target="_blank" rel="noopener"></a></div></div>
 </div>
 <div class="side"><h2 class="sr" data-r="qText" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></h2><div class="opts" data-r="opts" role="group"></div><button class="next" data-r="next" type="button"></button></div>

@@ -72,7 +72,7 @@ const CSS = (p, c) => `
 .${p}.r .fact{font-weight:700;font-size:clamp(.78rem,3.9cqw,1rem);line-height:1.3;color:var(--fg,#ddd);opacity:.9;max-width:40rem}
 .${p}.r .src{font-size:.68rem;color:var(--muted,#888);max-width:100%;line-height:1.3;overflow-wrap:anywhere}.${p}.r .src a{color:inherit}
 .${p}.r .next{width:100%;background:var(--fg,#fff);color:var(--bg,#000);font-size:clamp(1.1rem,6cqw,1.6rem);padding:.55rem;margin-top:.15rem}
-.${p}.r .next[aria-disabled=true]{opacity:.55}
+.${p}.r.lock .side{pointer-events:none}
 @container (min-aspect-ratio: 6/5){
  .${p}.r .in{flex-direction:row;align-items:stretch}
  .${p}.r .side{flex:0 0 min(46%,24rem);justify-content:center}
@@ -162,6 +162,7 @@ export function makeGame(cfg) {
         addEventListener("resize", () => { layout(); gp.apply(false); }, { signal: sig });
         img.addEventListener("load", () => gp.reset(), { signal: sig });
         img.src = round.img;
+        R.classList.add("lock"); setTimeout(() => R.classList.remove("lock"), 350); // stray tap from the previous screen
         function guess(g) {
           if (state !== "guess" || Date.now() - t0 < 350) return; // swallow stray taps carried over from the previous screen
           state = "rev"; picked = g; tRev = Date.now();
@@ -169,8 +170,8 @@ export function makeGame(cfg) {
           if (!ok) { vp.classList.remove("shake"); void vp.offsetWidth; vp.classList.add("shake"); }
           gb.forEach(b => b.disabled = true);
           stamp.style.color = cfg.stampColor(round.answer); void stamp.offsetWidth; stamp.classList.add("on");
-          R.classList.add("done"); nextB.setAttribute("aria-disabled", "true");
-          setTimeout(() => { if (!sig.aborted) { nextB.removeAttribute("aria-disabled"); } }, 450);
+          R.classList.add("done", "lock");
+          setTimeout(() => R.classList.remove("lock"), 450); // second tap of a double-tap can't hit Next or a source link
           paint(); ctx2.sfx && ctx2.sfx(ok ? "right" : "wrong");
         }
         gb.forEach(b => b.addEventListener("click", () => guess(b.dataset.g), { signal: sig }));

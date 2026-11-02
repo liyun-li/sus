@@ -1,6 +1,6 @@
 // Sus / 有鬼 — hub app. Modules live in ../modules/<id>/mod.js (see CONTRACT.md).
 import * as E from './engine.js';
-import SHIP from './ship.js?v=2611022330';
+import SHIP from './ship.js?v=2611022341';
 const V=new URL(import.meta.url).searchParams.get('v')||'0';
 const QS=new URLSearchParams(location.search);
 const LOCAL=/^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(location.hostname);
@@ -31,7 +31,7 @@ const S={en:{
  next:"NEXT →",results:"RESULTS →",
  pts:"pts",share:"SHARE",again:"PLAY AGAIN",shuffle2:"🔀 SHUFFLE",home:"HOME",copied:"Copied!",
  rank:["Easy mark","Side-eye","Sus detector","Bloodhound","Nothing gets past you"],
- streak:n=>`🔥 ${n}-day streak · new mix at midnight (Taipei)`,newBest:"🏆 New best!",
+ streak:n=>`🔥 ${n}-day streak · new mix at midnight (Taipei)`,newBest:"New best!",
  st:{correct:(c,n)=>[`🎯`,`${c}/${n} calls right`],fast:(g,s)=>[`⚡`,`Fastest call: ${g}, ${s}s`],slow:(g,s)=>[`🐢`,`Longest stare: ${g}, ${s}s`],
   best:g=>[`👑`,`Your strongest game: ${g}`],worst:g=>[`👻`,`Your nemesis: ${g}`],rounds:n=>[`🔀`,`${n} rounds survived`],best2:b=>[`🏆`,`Best: ${b}`]},
  sh:(n,p,m)=>`Sus 有鬼 👀 #${n} · ${p}/${m}`,shE:(p,c)=>`Sus 有鬼 👀 Shuffle · ${p} pts in ${c} rounds`,shS:(g,p,c)=>`Sus 有鬼 👀 ${g} · ${p} pts in ${c} rounds`,shStreak:n=>`🔥 ${n}-day streak`
@@ -49,7 +49,7 @@ const S={en:{
  next:"下一題 →",results:"看結果 →",
  pts:"分",share:"分享",again:"再玩一次",shuffle2:"🔀 隨機模式",home:"回首頁",copied:"已複製！",
  rank:["好騙仔","有點懷疑","雷達開了","獵犬鼻","什麼都瞞不過你"],
- streak:n=>`🔥 連續 ${n} 天・台灣時間午夜換新`,newBest:"🏆 新紀錄！",
+ streak:n=>`🔥 連續 ${n} 天・台灣時間午夜換新`,newBest:"新紀錄！",
  st:{correct:(c,n)=>[`🎯`,`答對 ${c}/${n} 題`],fast:(g,s)=>[`⚡`,`最快出手：${g}，${s} 秒`],slow:(g,s)=>[`🐢`,`盯最久：${g}，${s} 秒`],
   best:g=>[`👑`,`你最強的：${g}`],worst:g=>[`👻`,`你的剋星：${g}`],rounds:n=>[`🔀`,`撐了 ${n} 回合`],best2:b=>[`🏆`,`最佳：${b} 分`]},
  sh:(n,p,m)=>`Sus 有鬼 👀 #${n}・${p}/${m}`,shE:(p,c)=>`Sus 有鬼 👀 隨機模式・${c} 回合 ${p} 分`,shS:(g,p,c)=>`Sus 有鬼 👀 ${g}・${c} 回合 ${p} 分`,shStreak:n=>`🔥 連續 ${n} 天`
@@ -74,7 +74,7 @@ const meta=id=>META[id]||{icon:'❓',en:id,zh:id};
 function gname(id,lang=L){const m=MODS[id]&&MODS[id].mod;const n=m&&m.name;return (n&&(n[lang]||n.en))||meta(id)[lang]}
 function gicon(id){const m=MODS[id]&&MODS[id].mod;return (m&&typeof m.icon==='string'&&m.icon)||meta(id).icon}
 function getMod(id){if(LOADP[id])return LOADP[id];
- const url=id==='fake'?'../dev/fake/mod.js':`../modules/${id}/mod.js?v=${V}`;
+ const url=(LOCAL&&(id==='fake'||id.startsWith('dev')))?`../dev/${id}/mod.js`:`../modules/${id}/mod.js?v=${V}`;
  LOADP[id]=(async()=>{try{const ns=await timeout(import(url),15000,'import');const mod=ns&&ns.default;
    if(!mod||typeof mod.load!=='function'||typeof mod.pick!=='function'||typeof mod.render!=='function')throw new Error('bad export (need load/pick/render)');
    MODS[id]={state:'loading',mod};
@@ -91,7 +91,7 @@ async function probe(){await Promise.all(IDS.map(id=>getMod(id)));renderHome()}
 let run=null,curR=null;
 const tierAt=i=>i<3?1:i<7?2:3;
 const DTIERS=[1,1,2,2,3,3];
-function dailyOrder(day){return E.shuf(IDS.filter(x=>x!=='fake'||DEV.includes('fake')).slice().sort(),E.rng('sus|order|'+day))}
+function dailyOrder(day){return E.shuf(IDS.slice().sort(),E.rng('sus|order|'+day))}
 function freshDaily(day){return {mode:'daily',day,n:E.dayNo(day),order:dailyOrder(day),i:0,res:[]}}
 function getDaily(){const d=E.today();let s=E.LS.get('daily');if(!s||s.day!==d||!Array.isArray(s.order))s=freshDaily(d);return s}
 const total=res=>res.reduce((a,r)=>a+(r&&!r.skip?r.n:0),0);
@@ -106,7 +106,7 @@ function setLangUI(){document.documentElement.lang=L==='zh'?'zh-Hant':'en';$('lE
 function renderHome(){const d=getDaily(),k=d.order.length,done=d.i>=k;
  $('dailyBtn').innerHTML=done?T('dailyDone')(d.n,E.fmt(total(d.res)),maxOf(d.res)):d.i>0?T('dailyRes')(d.n,d.i,k):T('daily')(d.n,k);
  $('shuffleBtn').innerHTML=T('shuffle')(E.LS.get('best_shuffle')||0);
- const box=$('tiles');box.replaceChildren(...IDS.filter(x=>x!=='fake'||DEV.includes('fake')).map(id=>{const b=document.createElement('button');b.className='tile';b.type='button';b.dataset.id=id;
+ const box=$('tiles');box.replaceChildren(...IDS.map(id=>{const b=document.createElement('button');b.className='tile';b.type='button';b.dataset.id=id;
   const st=MODS[id]&&MODS[id].state,best=E.LS.get('best_'+id)||0;if(st==='fail')b.setAttribute('aria-disabled','true');
   b.innerHTML=`<span class="ic" aria-hidden="true">${gicon(id)}</span><span class="nm">${esc(T('solo')(gname(id),best))}</span>`;
   b.onclick=()=>{if(MODS[id]&&MODS[id].state==='fail'){note(T('noneOk'));return}startSolo(id)};return b}));
