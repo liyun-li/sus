@@ -1,20 +1,21 @@
 // Who Lives Like This? / 誰會住成這樣？ — hub module (Sus / 有鬼)
 // Data: the live game's own round table (inline `const R=[...]` in its index.html) + its img/ folder, same origin.
+import intro from './intro.js';
 const GAME = '/who-lives-like-this/';
 const PEEKS = 2;
 const S = {
   en: { drafting: 'DRAFTING…', slow: 'STILL DRAFTING… slow line', lost: 'PLAN LOST IN THE MAIL.', retry: 'RETRY ↻', allLabels: '🏷 all labels',
-    noLab: '🙈 no labels · hard mode', coach: '◉ tap a dot', hintT: '🔍 tap · pinch', hintM: '🔍 click to zoom', zhintT: 'pinch · double-tap · tap outside to close',
+    noLab: '🙈 no labels · hard mode', coach: '◉ tap dots to peek at rooms', hintT: '🔍 tap · pinch', hintM: '🔍 click to zoom', zhintT: 'pinch · double-tap · tap outside to close',
     zhintM: 'scroll to zoom · drag · Esc to close', close: 'Close', aDots: 'Room dots', alt: 'Floor plan', altZoom: 'Floor plan, full screen', zoomA: 'Full-screen plan',
-    right: ['NAILED IT', 'SNOOP', 'CORRECT', 'CLOCKED', 'SHARP'], wrong: ['NOPE', 'OOF', 'WRONG HOUSE', 'EVICTED', 'MISREAD'],
+    right: ['NAILED IT', 'CALLED IT', 'CORRECT', 'CLOCKED', 'SHARP'], wrong: ['NOPE', 'OOF', 'WRONG HOUSE', 'EVICTED', 'MISREAD'],
     barely: '◆ BARELY PEEKED', blind: '◆ BLIND READ', next: 'NEXT →', srcNote: 'recolored, original lettering replaced by tap labels, names redacted', factSrc: 'fact source',
-    q: 'Who lived here?', peeksLeft: n => `${n} peeks left for the bonus` },
+    q: 'Who lived here?', peeksLeft: n => `${n} peeks left for the bonus`, dia: n => `◆ ${n} peeks for +1` },
   zh: { drafting: '繪圖中…', slow: '還在畫…網路有點慢', lost: '圖紙寄丟了。', retry: '重試 ↻', allLabels: '🏷 全部標籤',
-    noLab: '🙈 沒標籤，硬猜', coach: '◉ 點一個圓點', hintT: '🔍 點擊 · 縮放', hintM: '🔍 點擊放大', zhintT: '雙指縮放 · 點兩下 · 點外面關閉',
+    noLab: '🙈 沒標籤，硬猜', coach: '◉ 點圓點偷看房間', hintT: '🔍 點一下 · 雙指縮放', hintM: '🔍 點一下放大', zhintT: '雙指縮放 · 點兩下 · 點外面關閉',
     zhintM: '滾輪縮放 · 拖曳 · Esc 關閉', close: '關閉', aDots: '房間圓點', alt: '平面圖', altZoom: '平面圖（全螢幕）', zoomA: '全螢幕平面圖',
-    right: ['命中', '被你抓到', '答對', '看穿了', '眼真尖'], wrong: ['不對', '痛', '走錯家', '被趕出去', '看走眼'],
+    right: ['命中', '被你抓到', '答對', '看穿了', '眼真尖'], wrong: ['不對', '慘', '走錯家', '被趕出去', '看走眼'],
     barely: '◆ 只瞄一眼', blind: '◆ 盲猜神準', next: '下一題 →', srcNote: '已重新上色，原圖文字改為點擊標籤，名字已塗掉', factSrc: '資料來源',
-    q: '誰住過這裡？', peeksLeft: n => `再偷看 ${n} 次內猜中有加分` }
+    q: '誰住過這裡？', peeksLeft: n => `再偷看 ${n} 次內猜中有加分`, dia: n => `◆ 再看 ${n} 間內猜中 +1` }
 };
 const CSS = `
 .m-plans{--bp:#163a6e;--bp2:#0e2a52;--ln:var(--fg,#eef4fc);--cy:#7fd3ff;--ylw:var(--accent2,#ffd84a);--grn:var(--ok,#3ee08f);--red:var(--bad,#ff5a6e);--k:1;
@@ -226,6 +227,7 @@ export default {
   id: 'plans',
   name: { en: 'Who Lives Like This?', zh: '誰會住成這樣？' },
   icon: '📐',
+  intro,
   async load(ctx) {
     const base = (ctx && ctx.base || 'https://liyun-li.github.io') + GAME;
     let R = null, err;
@@ -271,7 +273,7 @@ export default {
       const img = $('img'), zimg = $('zimg'), shot = $('shot');
       const src = round.base + r.img;
 
-      function diaUI() { const left = PEEKS - peeked.size, e = $('dia'); const gone = allUsed || left < 0; e.textContent = gone ? '◆' : '◆ ' + left; e.classList.toggle('gone', gone); e.title = gone ? '' : T('peeksLeft')(left) }
+      function diaUI() { const left = PEEKS - peeked.size, e = $('dia'); const gone = allUsed || left < 0; e.textContent = gone ? '◆' : T('dia')(left); e.classList.toggle('gone', gone); e.title = gone ? '' : T('peeksLeft')(left) }
       function onPeek(k, isAll) { if (locked || loading) return; if (isAll) allUsed = true; else peeked.add(k); diaUI(); if (!onboarded) { onboarded = true; $('hs').classList.remove('pulse'); $('zhs').classList.remove('pulse'); if (!nolab) $('coach').classList.remove('on') } }
       const LB = mkLB([{ hs: $('hs'), vp: $('vp'), el: img, pz: () => gp }, { hs: $('zhs'), vp: $('zvp'), el: zimg, pz: () => zp }], [$('lbtn'), $('zlbtn')], onPeek, () => L, sig);
 
@@ -311,7 +313,7 @@ export default {
         $('lbtn').textContent = T('allLabels'); $('zlbtn').textContent = T('allLabels');
         $('hintT').textContent = T('hintT'); $('hintM').textContent = T('hintM'); $('zhintT').textContent = T('zhintT'); $('zhintM').textContent = T('zhintM');
         $('retry').textContent = T('retry'); if (loading) $('phTxt').textContent = T('drafting'); if (shot.classList.contains('failed')) $('phTxt').textContent = T('lost');
-        $('qtag').textContent = o.q; $('qtag').classList.toggle('on', !!o.q);
+        $('qtag').textContent = o.q || T('q'); $('qtag').classList.toggle('on', true);
         $('btns').setAttribute('aria-label', T('q'));
         $('coach').textContent = nolab ? T('noLab') : T('coach');
         B.forEach((b, j) => b.querySelector('.t').textContent = o.options[j]);

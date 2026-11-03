@@ -1,4 +1,5 @@
 // Paper Trail / 保單疑雲 — hub module. Verdict call (+2), then the crack (+1) = 0..3.
+import intro from './intro.js';
 const CSS_ID='m-paper-css';
 const MONO='ui-monospace,"SF Mono",Menlo,Consolas,"Courier New","PingFang TC","Noto Sans TC","Noto Sans CJK TC",monospace';
 const CSS=`
@@ -68,11 +69,11 @@ const S={en:{head:'🧾 PAPER TRAIL',ex:i=>`EX.${'ABCDEFGH'[i]}`,qV:'Accident, f
  st:{accident:'ACCIDENT',fraud:'FRAUD',murder:'MURDER'},crack:'THE CRACK',rcOk:'✓ You found it',rcNo:'✗ You picked',
  line:(ok,v,p)=>ok?`✓ ${v}. +${p}`:`✗ It was ${v}.`,src:id=>`Ruling: ${id} ↗`,next:'NEXT →',
  sum:(v,vok,cok)=>`${vok?'✓':'✗'} ${v} · crack ${cok?'✓':'✗'}`},
-zh:{head:'🧾 保單疑雲',ex:i=>`證物${'甲乙丙丁戊己庚辛'[i]}`,qV:'意外、詐保，還是殺人？',qC:'破案關鍵是哪個？',
- v:{accident:['意外','保險公司得賠'],fraud:['詐保','造假，沒人喪命'],murder:['殺人詐保','為保險金殺人']},
- st:{accident:'意外',fraud:'詐保',murder:'殺人詐保'},crack:'破案關鍵',rcOk:'✓ 你找到了',rcNo:'✗ 你選的是',
- line:(ok,v,p)=>ok?`✓ ${v}，+${p}`:`✗ 答案是${v}。`,src:id=>`判決：${id} ↗`,next:'下一步 →',
- sum:(v,vok,cok)=>`${vok?'✓':'✗'} ${v}・關鍵 ${cok?'✓':'✗'}`}};
+zh:{head:'🧾 保單疑雲',ex:i=>`證物${'甲乙丙丁戊己庚辛'[i]}`,qV:'意外、詐保，還是殺人？',qC:'破綻在哪？',
+ v:{accident:['意外','保險得照賠'],fraud:['詐保','造假，沒出人命'],murder:['殺人詐保','為了保險金殺人']},
+ st:{accident:'意外',fraud:'詐保',murder:'殺人詐保'},crack:'破綻',rcOk:'✓ 你抓到了',rcNo:'✗ 你選的是',
+ line:(ok,v,p)=>ok?`✓ ${v}，+${p}`:`✗ 答案是${v}。`,src:id=>`判決：${id} ↗`,next:'下一題 →',
+ sum:(v,vok,cok)=>`${vok?'✓':'✗'} ${v}・破綻 ${cok?'✓':'✗'}`}};
 const norm=l=>/^zh/i.test(l||'')?'zh':'en';
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function h32(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -85,7 +86,7 @@ function deception(c){const t=c.trail_zh.join(''),d=(t.match(DEATH)||[]).length,
  return c.verdict==='accident'?f+2*d:c.verdict==='fraud'?2*d-f*.5:-2*d-f*.5}
 let live=null;
 export default {
- id:'paper',name:{en:'Paper Trail',zh:'保單疑雲'},icon:'🧾',
+ id:'paper',name:{en:'Paper Trail',zh:'保單疑雲'},icon:'🧾',intro,
  async load(ctx){const base=(ctx&&ctx.base)||'https://liyun-li.github.io';let d,err;
   for(let k=0;k<3;k++){try{const r=await fetch(base+'/paper-trail/cases.json',{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);d=await r.json();break}catch(e){err=e;if(k<2)await new Promise(r=>setTimeout(r,600*(k+1)))}}
   if(!d)throw err||new Error('load');

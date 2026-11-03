@@ -1,5 +1,6 @@
 // Do The Crime / 關多久？ — hub module. Higher-or-lower on real DOJ sentences.
 // One hub round = a chain of 3 comparisons (the revealed card becomes the known one), 1 pt each.
+import intro from './intro.js';
 const CSS_ID='m-crime-css';
 const CSS=`
 .m-crime{--mc-paper:#f3e9d8;--mc-paper2:#fff6e6;--mc-ink:#1d1712;--mc-mut:#6d5f50;--mc-hot:var(--accent,#ff4d2e);--mc-hot2:#ffb000;
@@ -50,18 +51,18 @@ const CSS=`
 @container mc (min-aspect-ratio:4/3){.m-crime .mc-arena{flex-direction:row}.m-crime .mc-crime{-webkit-line-clamp:6}}
 @media (prefers-reduced-motion:reduce){.m-crime *{animation-duration:.01s!important;transition:none!important}}
 `;
-const T={en:{q:'Who got <b>more time</b>?',hint:'Tap the one that got more prison time.',next:'NEXT',done:'DONE',known:'Sentenced to',
+const T={en:{q:'Who got <b>more time</b>?',hint:'Tap who got more prison time.',next:'NEXT →',done:'NEXT →',known:'Sentenced to',
  mo:n=>n===1?'1 month':`${n} months`,dy:n=>n===1?'1 day':`${n} days`,ym:(y,m)=>`${y} yr${y>1?'s':''}`+(m?` ${m} mo`:''),life:'LIFE',prob:'Probation',
- src:'DOJ ↗',srcL:'Read the DOJ press release',ok:['CALLED IT','SUSTAINED','NAILED IT','CORRECT'],no:['OVERRULED','OBJECTION!','NOPE','MISTRIAL'],
+ src:'DOJ ↗',srcL:'Read the DOJ press release',ok:['CALLED IT','NAILED IT','CORRECT','SHARP'],no:['NOPE','WRONG','OOF','NOT EVEN'],
  quips:{soft:'Paperwork crime, serious time.',prob:'One of them went home.',life:'Life. As in, the rest of it.',close:'Closer than it looks.',
   huge:r=>`${r}× the time. Justice math.`,gen:['Justice is weird.','The guidelines have spoken.','Nobody saw that coming. Except the judge.','Federal sentencing: it’s complicated.','The math is mathing. Kind of.']},
  step:(i,n)=>`Comparison ${i} of ${n}`,sum:p=>`${p}/3 sentences called`},
-zh:{q:'誰被關<b>比較久</b>？',hint:'點你覺得被關比較久的那一個。',next:'下一題',done:'完成',known:'判刑',
+zh:{q:'誰被關<b>比較久</b>？',hint:'點被關比較久的那個。',next:'下一題 →',done:'下一題 →',known:'判刑',
  mo:n=>`${n} 個月`,dy:n=>`${n} 天`,ym:(y,m)=>`${y} 年`+(m?` ${m} 個月`:''),life:'無期徒刑',prob:'緩刑',
- src:'司法部原文 ↗',srcL:'閱讀司法部原文（美國司法部新聞稿）',ok:['猜中啦','神準','抗議成立','正解'],no:['駁回','異議！','翻車','再審'],
+ src:'司法部原文 ↗',srcL:'閱讀司法部原文（美國司法部新聞稿）',ok:['猜中','神準','正解','內行'],no:['猜錯','翻車','錯了','差遠了'],
  quips:{soft:'文書犯罪，刑期一點都不文。',prob:'其中一個直接回家。',life:'無期，就是字面上的無期。',close:'比你想的還接近。',
-  huge:r=>`差了 ${r} 倍，司法數學。`,gen:['司法就是這麼玄。','量刑指南說了算。','沒人想到，除了法官。','聯邦量刑：很難說。','這數學，嗯，有點道理。']},
- step:(i,n)=>`第 ${i} / ${n} 題`,sum:p=>`猜中 ${p}/3 個刑期`}};
+  huge:r=>`差了 ${r} 倍，司法數學。`,gen:['司法就是這麼玄。','量刑指南說了算。','沒人想到，除了法官。','美國聯邦量刑，就是這麼難懂。','這數學……好像說得通？']},
+ step:(i,n)=>`第 ${i} / ${n} 題`,sum:p=>`刑期猜中 ${p}/3`}};
 const ST={'Florida':'佛羅里達','Texas':'德州','California':'加州','New York':'紐約','Montana':'蒙大拿','South Dakota':'南達科他','Massachusetts':'麻州','District of Columbia':'華府','Virginia':'維吉尼亞','Indiana':'印第安納','Iowa':'愛荷華','Louisiana':'路易斯安那','Connecticut':'康乃狄克','Ohio':'俄亥俄','Pennsylvania':'賓州','Georgia':'喬治亞','North Carolina':'北卡','South Carolina':'南卡','Tennessee':'田納西','Kentucky':'肯塔基','Alabama':'阿拉巴馬','Mississippi':'密西西比','Arkansas':'阿肯色','Missouri':'密蘇里','Kansas':'堪薩斯','Nebraska':'內布拉斯加','Oklahoma':'奧克拉荷馬','Colorado':'科羅拉多','Utah':'猶他','Nevada':'內華達','Arizona':'亞利桑那','New Mexico':'新墨西哥','Washington':'華盛頓州','Oregon':'奧勒岡','Idaho':'愛達荷','Wyoming':'懷俄明','North Dakota':'北達科他','Minnesota':'明尼蘇達','Wisconsin':'威斯康辛','Michigan':'密西根','Illinois':'伊利諾','New Jersey':'紐澤西','Delaware':'德拉瓦','Maryland':'馬里蘭','West Virginia':'西維吉尼亞','Maine':'緬因','New Hampshire':'新罕布夏','Vermont':'佛蒙特','Rhode Island':'羅德島','Alaska':'阿拉斯加','Hawaii':'夏威夷','Puerto Rico':'波多黎各','Guam':'關島','Virgin Islands':'美屬維京群島','Northern Mariana Islands':'北馬里亞納'};
 const HARD=new Set(['firearm','drugs','violent','threat','theft']),SOFT=new Set(['fraud','tax','covid','health','corruption','crypto','cyber','wildlife','mail','other','air','sport']);
 const CHAIN=3,HOLD=350;
@@ -85,7 +86,7 @@ function challenger(pool,champ,tier,R,seen){const [lo,hi]=BAND[tier]||BAND[2],v=
  for(let i=0;i<cand.length;i++){s-=w[i];if(s<=0)return cand[i]}return cand[cand.length-1]}
 let live=null;
 export default {
- id:'crime',name:{en:'Do The Crime',zh:'關多久？'},icon:'⚖️',
+ id:'crime',name:{en:'Do The Crime',zh:'關多久？'},icon:'⚖️',intro,
  async load(ctx){const base=(ctx&&ctx.base)||'https://liyun-li.github.io';let d,err;
   for(let k=0;k<3;k++){try{const r=await fetch(base+'/do-the-crime/curated.json',{cache:'no-cache'});if(!r.ok)throw new Error('HTTP '+r.status);d=await r.json();break}catch(e){err=e;if(k<2)await new Promise(r=>setTimeout(r,600*(k+1)))}}
   if(!d)throw err||new Error('load');

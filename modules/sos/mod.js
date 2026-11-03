@@ -1,7 +1,8 @@
 // Scam or Startup → hub module "sos". Data: live https://liyun-li.github.io/scam-or-startup/rounds.json + img/.
 // zh.json (this folder) adds Traditional Chinese stamp + fact per round id; missing ids fall back to English.
 import { makeGame } from "./engine.js";
-export default makeGame({
+import intro from "./intro.js";
+export default Object.assign(makeGame({
   id: "sos", repo: "scam-or-startup", icon: "🚩",
   name: { en: "Scam or Startup?", zh: "詐騙還是新創？" },
   answers: ["scam", "startup"], special: "both", specialEmoji: "🤡",
@@ -14,12 +15,12 @@ export default makeGame({
     + (r.archive ? ` · <a href="${esc(r.archive)}" target="_blank" rel="noopener">${T("archive")}</a>` : ""),
   text: {
     en: { a: "🚩 SCAM", b: "🚀 STARTUP", ansA: "🚩 SCAM", ansB: "🚀 STARTUP", specialV: "BOTH 🤡", specialA: "funded AND charged",
-      right: ["DUE DILIGENCE", "NAILED IT", "CORRECT", "SHARP", "BASED"], wrong: ["REKT", "WRONG", "BAGHOLDER", "OOF", "DOWN BAD"],
+      right: ["NAILED IT", "CALLED IT", "CORRECT", "SHARP"], wrong: ["REKT", "WRONG", "BAGHOLDER", "OOF"],
       next: "NEXT →", source: "source", archive: "archive", alt: "Archived landing page", close: "Close",
       hintT: "🔍 tap · pinch", hintM: "🔍 click", zhintT: "pinch · double-tap", zhintM: "ctrl+scroll · double-click" },
     zh: { a: "🚩 詐騙", b: "🚀 新創", ansA: "🚩 詐騙", ansB: "🚀 新創", specialV: "兩個都是 🤡", specialA: "募到錢，也被起訴",
-      right: ["盡職調查", "神準", "答對", "眼光好", "內行"], wrong: ["被割韭菜", "錯了", "套牢", "噢不", "慘"],
+      right: ["神準", "答對", "眼光好", "內行喔"], wrong: ["被割韭菜", "錯了", "套牢", "看走眼"],
       next: "下一題 →", source: "來源", archive: "存檔", alt: "網站存檔畫面", close: "關閉",
       hintT: "🔍 點一下 · 雙指縮放", hintM: "🔍 點一下放大", zhintT: "雙指縮放 · 點兩下", zhintM: "ctrl+滾輪 · 點兩下" }
   }
-});
+}), { intro });

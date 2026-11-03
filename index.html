@@ -9,7 +9,7 @@
 <meta property="og:title" content="Sus 有鬼 👀"><meta property="og:description" content="Six sus games, one Daily Mix. Can you spot what's off?">
 <meta property="og:image" content="https://liyun-li.github.io/sus/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Sus 有鬼: six suspicious games in one.">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://liyun-li.github.io/sus/og.png">
-<link rel="stylesheet" href="core/hub.css?v=2611030032">
+<link rel="stylesheet" href="core/hub.css?v=2611040029">
 </head><body>
 <main class="app">
 <header class="top">
@@ -32,10 +32,11 @@
 </section>
 
 <section class="screen" id="play" aria-labelledby="rgame">
- <div class="rhead"><span id="rgame"></span><span class="tier" id="rtier"></span></div>
+ <div class="rhead"><span id="rgame"></span><button class="qhelp" id="helpBtn" type="button" hidden>?</button></div>
  <div class="stage" id="stage"></div>
  <button class="hnext" id="hnext" type="button" hidden></button>
  <p class="hsr" id="live" aria-live="polite"></p>
+ <div class="intro" id="intro" role="dialog" aria-modal="true" aria-labelledby="introT" hidden><div class="ibox"><h2 id="introT"></h2><ol id="introS"></ol><div class="iex" id="introX"></div><button class="cta" id="introOk" type="button"></button></div></div>
 </section>
 
 <section class="screen" id="end" aria-labelledby="score">
@@ -45,9 +46,10 @@
  <ul class="stats" id="stats"></ul>
  <div class="streak" id="streak"></div>
  <div class="row"><button class="cta" id="shareBtn" type="button"></button><button class="ghost" id="againBtn" type="button"></button></div>
+ <button class="homeL" id="homeBtn" type="button"></button>
  <div class="toast" id="toast" role="status"></div>
 </section>
 <p class="foot" id="foot"><span id="footT"></span> · <a href="about.html" id="aboutL"></a></p>
 </main>
-<script type="module" src="core/app.js?v=2611030032"></script>
+<script type="module" src="core/app.js?v=2611040029"></script>
 </body></html>

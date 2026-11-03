@@ -3,6 +3,7 @@
 // fbi.gov / tips.fbi.gov only appear as links the player can choose to open after the reveal.
 // Guardrails kept: missing / parental-kidnapping / seeking-information files are excluded (never scored);
 // the portrait is requested only after the guess; one-clue cases are left out so every round has its one hint.
+import intro from './intro.js';
 const GAME = '/look-again/';
 const PTS = [3, 1];
 const GMAP = { cyber: 'cyber', spy: 'spy', terror: 'terror', money: 'money', violent: 'violent', gangs: 'violent', topten: 'violent' };
@@ -15,14 +16,14 @@ const CAT = {
 const LIST = { topten: { en: '⭐ FBI Ten Most Wanted', zh: '⭐ FBI 十大通緝要犯' }, gangs: { en: 'Criminal enterprises', zh: '犯罪集團' }, violent: { en: 'Violent crime', zh: '暴力犯罪' },
   cyber: { en: 'Cyber’s Most Wanted', zh: '網路犯罪通緝' }, spy: { en: 'Counterintelligence', zh: '反情報' }, terror: { en: 'Terrorism', zh: '恐怖主義' }, money: { en: 'White-collar crime', zh: '白領犯罪' } };
 const S = {
-  en: { q: 'Which kind of case is this?', worth: p => `+${p}`, more: p => `💡 Hint <small>→ then worth +${p}</small>`, last: 'Hint used. Make the call!',
+  en: { q: 'What kind of case?', worth: p => `+${p}`, more: p => `💡 Hint <small>→ then worth +${p}</small>`, last: 'Hint used. Make the call!',
     right: p => `✓ Cracked it! +${p}`, wrong: '✗ Not this time', was: 'It was', onList: 'On the list:', tip: 'Seen them? Submit a tip ↗', full: 'Full poster', fbi: 'FBI page ↗',
     next: 'NEXT →', lgWanted: 'Charges are allegations. Presumed innocent until proven guilty.', noPic: 'Photo unavailable', enNote: 'FBI wording:',
     fullFiled: 'FBI list', fullDesc: 'Poster', fullText: 'Details (FBI wording)', fullRm: 'Remarks', fullRw: 'Reward', cutNote: 'Descriptions of appearance are left out here. The FBI page has the full poster.',
     close: 'Close', redacted: 'redacted' },
-  zh: { q: '這是哪一類案件？', worth: p => `+${p}`, more: p => `💡 看提示 <small>→ 剩 +${p}</small>`, last: '提示用過了，快下判斷！',
-    right: p => `✓ 破案！+${p}`, wrong: '✗ 這次沒猜中', was: '答案是', onList: '所屬名單：', tip: '見過這個人？向 FBI 提供線索 ↗', full: '完整公告', fbi: 'FBI 官方頁面 ↗',
-    next: '下一案 →', lgWanted: '起訴內容僅為指控，未經定罪前推定無罪。', noPic: '照片無法顯示', enNote: 'FBI 英文原文：',
+  zh: { q: '這是哪種案子？', worth: p => `+${p}`, more: p => `💡 看提示 <small>→ 剩 +${p}</small>`, last: '提示用完了，選吧！',
+    right: p => `✓ 破案！+${p}`, wrong: '✗ 猜錯了', was: '答案是', onList: '所屬名單：', tip: '見過這人？報給 FBI ↗', full: '完整公告', fbi: 'FBI 官方頁面 ↗',
+    next: '下一題 →', lgWanted: '起訴內容僅為指控，未經定罪前推定無罪。', noPic: '照片無法顯示', enNote: 'FBI 原文：',
     fullFiled: 'FBI 名單', fullDesc: '公告', fullText: '案情（FBI 英文原文）', fullRm: '備註', fullRw: '懸賞', cutNote: '此處略去外貌描述；完整公告請見 FBI 官方頁面。',
     close: '關閉', redacted: '已塗黑' }
 };
@@ -149,7 +150,7 @@ let active = null;
 
 export default {
   id: 'look',
-  name: { en: 'Look Again', zh: '再看一眼' },
+  name: { en: 'Look Again', zh: '再看一眼' }, intro,
   icon: '🔎',
   async load(ctx) {
     const base = (ctx && ctx.base || 'https://liyun-li.github.io') + GAME;
@@ -250,8 +251,8 @@ export default {
         $('rname').textContent = nameOf(c);
         const lst = c.c === 'topten' && LIST[c.c] ? `<br><span class="badge">${esc(T('onList'))} ${esc(LIST[c.c][L])}</span>` : '';
         $('rcat').innerHTML = `${esc(T('was'))} ${esc(CAT[g][L])}${lst}`;
-        const r = c.r || {}, firstT = (r.t || []).slice(0, 2).join(' ');
-        $('rd').innerHTML = (L === 'zh' ? `<b>${esc(T('enNote'))}</b> ` : '') + `<span lang="en">${esc(r.d ? r.d + ' — ' : '')}${esc(firstT)}</span>`;
+        const r = c.r || {}, firstT = (r.t || []).slice(0, 1).join(' ');
+        $('rd').innerHTML = (L === 'zh' ? `<b>${esc(T('enNote'))}</b> ` : '') + `<span lang="en">${L === 'zh' && r.d ? esc(r.d) : esc(r.d ? r.d + ' — ' : '') + esc(firstT)}</span>`;
         $('legal').textContent = T('lgWanted'); $('tip').textContent = T('tip'); $('fullBtn').textContent = T('full');
         $('fbiLink').textContent = T('fbi'); $('fbiLink').href = c.url;
         if (first) { // portrait requested only now, after the guess
