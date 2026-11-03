@@ -11,7 +11,7 @@ const btn = (t, bg, fg) => `<span style="flex:1;text-align:center;padding:.35em 
 function example(t) {
   return `<div aria-hidden="true" style="display:flex;flex-direction:column;gap:.35em;font-size:.85em">
 <div style="height:3.6em;border:1px solid #ffffff40;border-radius:.4em;background:linear-gradient(135deg,#3a2f28,#6b5a4a 60%,#2a2320);display:flex;align-items:center;justify-content:center;position:relative;font-size:1.4em">🛋️<span style="position:absolute;right:.4em;bottom:.25em;font-size:.55em;color:#fff;opacity:.85">${t.zoom}</span></div>
-<div style="display:flex;gap:.4em">${btn(t.a, '#ff2e4d', '#fff')}${btn(t.b, '#e9c58f', '#2a1a05')}</div></div>`;
+<div style="display:flex;gap:.4em">${btn(t.a, '#ff2e4d', '#1a0004')}${btn(t.b, '#e9c58f', '#2a1a05')}</div></div>`;
 }
 // Short landscape screens: the hub card hides the picture (the steps carry the rules); standalone pages lay it out side by side.
 const wrap = h => `<style>@media (orientation:landscape) and (max-height:520px){.m-cozy .mx-cozy{display:none}}</style><div class="mx-cozy">${h}</div>`;

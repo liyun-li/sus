@@ -13,7 +13,7 @@ function example(t) {
 <div style="border:1px solid #ffffff40;border-radius:.4em;overflow:hidden;background:#fff;color:#333">
 <div style="background:#ddd;padding:.15em .5em;font:600 .8em ui-monospace,monospace">● ● ● &nbsp;www.········.com</div>
 <div style="padding:.4em .6em;display:flex;flex-direction:column;gap:.25em"><span style="display:block;height:.55em;width:70%;background:#bbb;border-radius:.3em"></span><span style="display:block;height:.4em;width:90%;background:#ddd;border-radius:.3em"></span><span style="font-size:.8em;color:#666;align-self:flex-end">${t.zoom}</span></div></div>
-<div style="display:flex;gap:.4em">${btn(t.a, '#ff2e4d', '#fff')}${btn(t.b, '#19e07a', '#062')}</div></div>`;
+<div style="display:flex;gap:.4em">${btn(t.a, '#ff2e4d', '#1a0004')}${btn(t.b, '#19e07a', '#04210f')}</div></div>`;
 }
 // Short landscape screens: the hub card hides the picture (the steps carry the rules); standalone pages lay it out side by side.
 const wrap = h => `<style>@media (orientation:landscape) and (max-height:520px){.m-sos .mx-sos{display:none}}</style><div class="mx-sos">${h}</div>`;
